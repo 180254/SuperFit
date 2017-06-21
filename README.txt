@@ -15,8 +15,8 @@
 4c. edit fit-kafka-stream\x-kafka-kafka.bat and set kafka dir path
 
 ## Run
-1. run fit-kafka-stream\x-kafka-kafka.bat & wait until finish
-2. run java -jar fit-data-gateway\target\fit-data-gateway-1.0.jar & wait until fully started
-3. run java -jar fit-fake-android\target\fit-fake-android-1.0-jar-with-dependencies.jar & wait until fully started
-4. run java -jar fit-beam-processor\target\fit-beam-processor-1.0-jar-with-dependencies.jar & wait until fully started
+1. fit-kafka-stream\x-kafka-kafka.bat (wait until finish)
+2. java -jar fit-data-gateway\target\fit-data-gateway-1.0.jar
+3. java -jar fit-fake-android\target\fit-fake-android-1.0-jar-with-dependencies.jar
+4. java -jar fit-beam-processor\target\fit-beam-processor-1.0-jar-with-dependencies.jar
 5. visit http://localhost:8080/
