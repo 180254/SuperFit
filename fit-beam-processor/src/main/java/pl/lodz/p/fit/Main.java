@@ -130,7 +130,7 @@ public class Main {
                                     String payload = objectMapper.writeValueAsString(c.element());
 
                                     Request request = new Request.Builder()
-                                            .url(DEFAULT_SERVICE_URL)
+                                            .url(service)
                                             .post(RequestBody.create(jsonMediaType, payload))
                                             .addHeader("content-type", "application/json")
                                             .build();
