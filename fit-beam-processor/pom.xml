@@ -3,7 +3,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>pl.lodz.p.mgr</groupId>
+    <groupId>pl.lodz.p.fit</groupId>
     <artifactId>fit-beam-processor</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
