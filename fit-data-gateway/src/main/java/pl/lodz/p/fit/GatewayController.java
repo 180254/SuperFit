@@ -1,12 +1,14 @@
-package pl.lodz.p.mgr;
+package pl.lodz.p.fit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.kafka.clients.producer.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,9 +36,10 @@ public class GatewayController {
     private final Set<Long> timestamps = Collections.synchronizedSet(new TreeSet<>());
     private final Map<FitKey, FitEntry> fitEntries = new ConcurrentHashMap<>();
 
-    public GatewayController() {
+    @Autowired
+    public GatewayController(Environment env) {
         Properties kafkaCfg = new Properties();
-        kafkaCfg.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        kafkaCfg.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, env.getProperty("kafka.server"));
         kafkaCfg.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.ByteArraySerializer");
         kafkaCfg.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 

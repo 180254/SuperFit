@@ -1,4 +1,4 @@
-package pl.lodz.p.mgr;
+package pl.lodz.p.fit;
 
 import java.io.Serializable;
 import java.util.Objects;
