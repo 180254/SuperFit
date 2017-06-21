@@ -19,9 +19,13 @@ public class FakeAndroid {
     private static final int[] delays = {0, 0, 0, 0, 0, 0, 0, 5, 10, 15, 30, 60, 75, 100, 150, 200, 300, 500};
 
     private static final int SLEEP_SECONDS = 5;
-    private static final String GATEWAY = "http://localhost:8080/entry";
+    private static final String DEFAULT_GATEWAY = "http://localhost:8080/entry";
 
     public static void main(String[] args) throws InterruptedException {
+        String gateway = args.length > 0
+                ? args[0]
+                : DEFAULT_GATEWAY;
+
         Random random = new Random();
         Gson gson = new Gson();
         OkHttpClient client = new OkHttpClient();
@@ -38,7 +42,7 @@ public class FakeAndroid {
 
             try {
                 Request request = new Request.Builder()
-                        .url(GATEWAY)
+                        .url(gateway)
                         .post(RequestBody.create(JSON_MEDIA_TYPE, payload))
                         .addHeader("content-type", "application/json")
                         .build();
