@@ -1,6 +1,5 @@
 package pl.lodz.p.mgr;
 
-
 import okhttp3.*;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
@@ -23,27 +22,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.stream.StreamSupport;
 
 
 public class Main {
 
-    public static final String SERVICE_URL = "http://localhost:8080/result";
-
-    public static byte[] aa(InputStream is, int size) throws IOException {
-        byte[] buffer = new byte[size];
-        int read = is.read(buffer);
-        return buffer;
-    }
+    public static final String DEFAULT_SERVICE_URL = "http://localhost:8080/result";
 
     public static void main(String[] args) {
+        String service = args.length > 0
+                ? args[0]
+                : DEFAULT_SERVICE_URL;
+
         Logger logger = LoggerFactory.getLogger(Main.class);
 
-        Options options = PipelineOptionsFactory
+        ProjectOptions options = PipelineOptionsFactory
                 .fromArgs(args)
                 .withValidation()
-                .as(Options.class);
+                .as(ProjectOptions.class);
         options.setStreaming(true);
 
         Pipeline pipeline = Pipeline.create(options);
@@ -53,8 +49,8 @@ public class Main {
         int earlyFire = (int) (durationSec * options.getEarlyFiringPercentage());
         int lateFire = (int) (durationSec * options.getLateFiringPercentage());
 
-        pipeline.getCoderRegistry().registerCoderForClass(Key.class, new NiceCoder<>());
-        pipeline.getCoderRegistry().registerCoderForClass(FitEntry.class, new NiceCoder<>());
+        pipeline.getCoderRegistry().registerCoderForClass(Key.class, new SerializableCoder<>(Key.class));
+        pipeline.getCoderRegistry().registerCoderForClass(FitEntry.class, new SerializableCoder<>(FitEntry.class));
 
         pipeline
                 .apply("fetch data",
@@ -63,7 +59,6 @@ public class Main {
                                 .withTopic(options.getKafkaTopic())
                                 .withKeyDeserializer(LongDeserializer.class)
                                 .withValueDeserializer(StringDeserializer.class)
-
                 )
                 .apply("deserialize",
                         ParDo.of(new DoFn<KafkaRecord<Long, String>, KV<Key, FitEntry>>() {
@@ -83,8 +78,9 @@ public class Main {
 
                                     KV<Key, FitEntry> kv = KV.of(key, fitEntry);
                                     c.outputWithTimestamp(kv, timestamp);
+
                                 } catch (IOException e) {
-                                    e.printStackTrace();
+                                    logger.warn("deserialize step exception", e);
                                 }
                             }
                         })
@@ -102,7 +98,6 @@ public class Main {
                                                 .plusDelayOf(Duration.standardSeconds(lateFire))))
                                 .withAllowedLateness(Duration.standardSeconds(latenessSec))
                                 .accumulatingFiredPanes()
-
                 )
                 .apply("group by key",
                         GroupByKey.create()
@@ -128,16 +123,23 @@ public class Main {
                         ParDo.of(new DoFn<FitEntry, Void>() {
                             @ProcessElement
                             public void processElement(ProcessContext c) {
+                                MediaType jsonMediaType = MediaType.parse("application/json");
+                                ObjectMapper objectMapper = new ObjectMapper();
+
                                 try {
+                                    String payload = objectMapper.writeValueAsString(c.element());
+
                                     Request request = new Request.Builder()
-                                            .url(SERVICE_URL)
-                                            .post(RequestBody.create(MediaType.parse("application/json"), new ObjectMapper().writeValueAsString(c.element())))
+                                            .url(DEFAULT_SERVICE_URL)
+                                            .post(RequestBody.create(jsonMediaType, payload))
                                             .addHeader("content-type", "application/json")
                                             .build();
                                     Response response = new OkHttpClient().newCall(request).execute();
-                                    System.out.println("OK: " + c.element());
+
+                                    logger.info("OK {}", c.element());
+
                                 } catch (IOException e) {
-                                    System.out.println("FAIL: " + c.element());
+                                    logger.info("FAIL {}", c.element());
                                 }
 
                             }

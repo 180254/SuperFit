@@ -3,7 +3,7 @@ package pl.lodz.p.mgr;
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.StreamingOptions;
 
-interface Options extends StreamingOptions {
+interface ProjectOptions extends StreamingOptions {
 
     // @formatter:off
 
