@@ -1,4 +1,4 @@
-package pl.lodz.p.mgr;
+package pl.lodz.p.fit;
 
 import org.apache.beam.sdk.options.Default;
 import org.apache.beam.sdk.options.StreamingOptions;

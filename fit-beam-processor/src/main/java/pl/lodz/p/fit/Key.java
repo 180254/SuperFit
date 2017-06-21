@@ -1,4 +1,4 @@
-package pl.lodz.p.mgr;
+package pl.lodz.p.fit;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

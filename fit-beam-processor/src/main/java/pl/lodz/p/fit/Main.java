@@ -1,4 +1,4 @@
-package pl.lodz.p.mgr;
+package pl.lodz.p.fit;
 
 import okhttp3.*;
 import org.apache.beam.sdk.Pipeline;
